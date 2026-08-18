@@ -7,7 +7,6 @@
 #SBATCH --mem 64G
 #SBATCH --partition batch
 #SBATCH --qos batch_default
-#SBATCH --mail-user
 #SBATCH --mail-type ALL
 
 set -euo pipefail

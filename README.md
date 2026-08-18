@@ -22,7 +22,7 @@ cp config.env.example config.env
 ### With Slurm
 
 ```sh
-sbatch main.slurm
+sbatch --mail-user "YOUR_EMAIL" main.slurm
 ```
 
 ### Without Slurm / In a local machine
