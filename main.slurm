@@ -10,5 +10,39 @@
 #SBATCH --mail-user
 #SBATCH --mail-type ALL
 
-source config.env
-bash scripts/vcftomatrix.sh "$INPUT_VCF" output/matrix
+set -euo pipefail
+
+readonly CONFIG_FILE=./config.env
+
+die() {
+  echo "Error: $1" >&2
+  exit 1
+}
+
+load_config() {
+  if [[ ! -f "$CONFIG_FILE" ]]; then
+    die "Configuration file $CONFIG_FILE not found"
+  fi
+
+  if ! source "$CONFIG_FILE"; then
+    die "Configuration file $CONFIG_FILE failed to load"
+  fi
+}
+
+validate_config() {
+  if [[ -z ${INPUT_VCF:-} ]]; then
+    die "INPUT_VCF is not set in $CONFIG_FILE"
+  fi
+
+  if [[ ! -f "$INPUT_VCF" ]]; then
+    die "INPUT_VCF $INPUT_VCF not found"
+  fi
+}
+
+run_vcftomatrix() {
+  bash scripts/vcftomatrix.sh "$INPUT_VCF" output/matrix
+}
+
+load_config
+validate_config
+run_vcftomatrix
