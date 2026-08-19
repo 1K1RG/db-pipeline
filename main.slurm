@@ -39,9 +39,17 @@ validate_config() {
 }
 
 run_vcftomatrix() {
-  bash scripts/vcftomatrix.sh "$INPUT_VCF" output/matrix
+  bash src/vcftomatrix.sh "$INPUT_VCF" output/matrix
+}
+
+run_matrixtohdf5() {
+  mkdir -p build
+  cd build
+  bash ../src/build-loadmatrix.sh ../src/loadmatrix_SNP-annot.cpp
+  cd ..
 }
 
 load_config
 validate_config
 run_vcftomatrix
+run_matrixtohdf5
