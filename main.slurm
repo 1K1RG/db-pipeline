@@ -44,9 +44,11 @@ run_vcftomatrix() {
 
 run_matrixtohdf5() {
   mkdir -p build
-  cd build
-  bash ../src/build-loadmatrix.sh ../src/loadmatrix_SNP-annot.cpp
-  cd ..
+
+  (
+    cd build
+    bash ../src/build-loadmatrix.sh ../src/loadmatrix_SNP-annot.cpp
+  )
 }
 
 load_config

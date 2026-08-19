@@ -14,16 +14,17 @@ install-hdf5-1.8() {
 
   curl -LO https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.23/src/hdf5-1.8.23.tar.gz
   tar -xzf hdf5-1.8.23.tar.gz
-  cd hdf5-1.8.23
 
-  ## -Wincompatible-pointer-types was only a warning until GCC 14 made it an
-  # error by default. This breaks compilation of HDF5 1.8.23 tools (h5diff,
-  # h5dump, etc.)
-  ./configure CFLAGS=-Wno-error=incompatible-pointer-types
-  make
-  make install
+  (
+    cd hdf5-1.8.23
 
-  cd ..
+    ## -Wincompatible-pointer-types was only a warning until GCC 14 made it an
+    # error by default. This breaks compilation of HDF5 1.8.23 tools (h5diff,
+    # h5dump, etc.)
+    ./configure CFLAGS=-Wno-error=incompatible-pointer-types
+    make
+    make install
+  )
 }
 
 build-loadmatrix() {
