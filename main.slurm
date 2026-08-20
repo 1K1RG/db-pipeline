@@ -36,6 +36,10 @@ validate_config() {
   if [[ ! -f "$INPUT_VCF" ]]; then
     die "INPUT_VCF $INPUT_VCF not found"
   fi
+
+  if [[ -z ${OUTPUT_HDF5_NAME:-} ]]; then
+    die "OUTPUT_HDF5_NAME is not set in $CONFIG_FILE"
+  fi
 }
 
 run_vcftomatrix() {
@@ -49,6 +53,8 @@ run_matrixtohdf5() {
     cd build
     bash ../src/build-loadmatrix.sh ../src/loadmatrix_SNP-annot.cpp
   )
+
+  bash src/make_HDF_dataset.sh output/matrix "$OUTPUT_HDF5_NAME" output build/loadmatrix_geno
 }
 
 load_config

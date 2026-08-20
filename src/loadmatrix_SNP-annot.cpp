@@ -20,16 +20,13 @@ Edited: Feb. 14, 2018
 
 using namespace std;
 
-static const char *options="m:n:r:to:";
+static const char *options="m:n:r:ti:o:";
 
 static int CHUNK_Y=0;
-
 static int CHUNK_X=0;
-
 static int SAMCOUNT = 0;
-
 static bool is_transposed = false;
-
+static char input_file[1000];
 static char output_file[1000];
 
 void parseArgs(int argc, char **argv){
@@ -41,6 +38,7 @@ void parseArgs(int argc, char **argv){
       case 'n': CHUNK_X = atoi(optarg); break;
       case 'r': SAMCOUNT = atoi(optarg); break; // This should give the exact number of rows
       case 't': is_transposed = true; break;
+      case 'i': strcpy(input_file, optarg); break;
       case 'o': strcpy(output_file, optarg); break;
       default: break;
     }
@@ -94,19 +92,21 @@ int main(int argc, char **argv){
   parseArgs(argc, argv);
 
   if(CHUNK_Y == 0 || CHUNK_X == 0 ){
-    std::cerr << "Usage:\n" << *argv
-      << " -r  Number of rows in the input genotype matrix \n"					
+    std::cerr << "Usage:\n" << *argv << "\n" 
+      << " -r Number of rows in the input genotype matrix \n"
       << " -m chunk dimension (height)\n"
       << " -n chunk dimernsion (width)\n"
       << " -t transposed orientation\n"
+      << " -i input genotype matrix file\n"
       << " -o output-file"
       << std::endl;
+    return 1;
   }
 
   char **data=NULL;
-  ifstream fp1("Matrix.txt");
+  ifstream fp1(input_file);
   if(!fp1.is_open()){ 
-    printf("ERROR: Cannot open file.");
+    fprintf(stderr, "ERROR: Cannot open file.");
     return 1;
   }
 
