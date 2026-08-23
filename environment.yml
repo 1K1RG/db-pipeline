@@ -1,0 +1,10 @@
+name: 1k1rg-pipeline
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - bcftools
+  - curl
+  - gxx
+  - make

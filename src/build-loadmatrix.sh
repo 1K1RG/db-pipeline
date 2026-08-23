@@ -31,10 +31,12 @@ build-loadmatrix() {
   # No need to check if loadmatrix_geno is already built, it builds quickly
 
   loadmatrix_cpp="$1"
-  export LD_RUN_PATH=$HDF5_LIB
 
-  g++ -Wno-narrowing -o loadmatrix_geno -I $HDF5_INCLUDE "$loadmatrix_cpp" -lhdf5 \
-    -L $HDF5_LIB
+  # -rpath instead of LD_RUN_PATH: the linker ignores LD_RUN_PATH whenever an
+  # -rpath is already present, and the conda-forge g++ specs file always adds
+  # one for the environment's lib dir
+  g++ -Wno-narrowing -o loadmatrix_geno -I $HDF5_INCLUDE "$loadmatrix_cpp" \
+    -lhdf5 -L $HDF5_LIB -Wl,-rpath,$HDF5_LIB
 }
 
 install-hdf5-1.8
