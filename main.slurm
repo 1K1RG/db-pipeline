@@ -13,8 +13,12 @@ set -euo pipefail
 
 readonly CONFIG_FILE=./config.env
 
+log() {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+}
+
 die() {
-  echo "Error: $1" >&2
+  log "Error: $1" >&2
   exit 1
 }
 
@@ -117,7 +121,7 @@ activate_env() {
   fi
 
   if [[ ${CONDA_DEFAULT_ENV:-} == "$env_name" ]]; then
-    echo "Environment $env_name is already active"
+    log "Environment $env_name is already active"
     return
   fi
 
@@ -129,22 +133,26 @@ activate_env() {
     die "Failed to activate environment $env_name"
   fi
 
-  echo "Activated environment $env_name"
+  log "Activated environment $env_name"
 }
 
 run_vcftomatrix() {
+  log "Starting VCF-to-matrix conversion"
   bash src/vcftomatrix.sh "$INPUT_VCF" output/matrix
+  log "Completed VCF-to-matrix conversion"
 }
 
 run_matrixtohdf5() {
+  log "Starting matrix-to-HDF5 conversion"
   mkdir -p build
 
   (
     cd build
-    bash ../src/build-loadmatrix.sh ../src/loadmatrix_SNP-annot.cpp
+    bash ../src/build-loadmatrix.sh ../src/loadmatrix_SNP-annot.cpp >/dev/null
   )
 
   bash src/make_HDF_dataset.sh output/matrix "$OUTPUT_HDF5_NAME" output build/loadmatrix_geno
+  log "Completed matrix-to-HDF5 conversion"
 }
 
 load_config

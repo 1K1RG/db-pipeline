@@ -12,7 +12,8 @@ install-hdf5-1.8() {
     return
   fi
 
-  curl -LO https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.23/src/hdf5-1.8.23.tar.gz
+  curl --silent --show-error --location --remote-name \
+    https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.23/src/hdf5-1.8.23.tar.gz
   tar -xzf hdf5-1.8.23.tar.gz
 
   (
