@@ -3,8 +3,8 @@
 #SBATCH --job-name 1k1rg-db-pipeline
 #SBATCH --output logs/1k1rg-db-pipeline-%j.out
 #SBATCH --error logs/1k1rg-db-pipeline-%j.error
-#SBATCH --cpus-per-task 16
-#SBATCH --mem 64G
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 2G
 #SBATCH --partition batch
 #SBATCH --qos batch_default
 #SBATCH --mail-type ALL
