@@ -51,7 +51,7 @@ validate_config() {
 }
 
 create_db() {
-  log "Initializing database"
+  log "Starting database init"
 
   sudo -u postgres psql <<SQL
     DROP DATABASE IF EXISTS $POSTGRES_DB_NAME;
@@ -63,11 +63,11 @@ create_db() {
     GRANT ALL ON SCHEMA public TO $POSTGRES_USER;
 SQL
 
-  log "Database initialized"
+  log "Completed database init"
 }
 
 load_chado_dump() {
-  log "Starting Chado database init"
+  log "Starting Chado init"
 
   if ! command -v psql &>/dev/null; then
     die "psql was not found in the active environment"
@@ -82,35 +82,56 @@ load_chado_dump() {
     --no-psqlrc \
     --set ON_ERROR_STOP=1 \
     --single-transaction \
-    -f "src/chado_dump.sql"; then
+    -f "src/chado_dump.sql" \
+    >/dev/null; then
     die "Failed to restore Chado database dump"
   fi
 
-  log "Completed Chado database init"
+  log "Completed Chado init"
+}
+
+load_ref() {
+  log "Starting reference genome load"
+
+  if ! PGHOST="$POSTGRES_HOST" \
+    PGPORT="$POSTGRES_PORT" \
+    PGDATABASE="$POSTGRES_DB_NAME" \
+    PGUSER="$POSTGRES_USER" \
+    PGPASSWORD="$POSTGRES_PASSWORD" \
+    bash src/loadReferenceGenome.sh \
+    -i "$REF_GFF" \
+    -o "$REF_NAME" \
+    -n "$REF_NAME"; then
+    die "Failed to load reference genome"
+  fi
+
+  log "Completed reference genome load"
+}
+
+load_samples() {
+  log "Starting sample dataset load"
+
+  if ! DB_HOST="$POSTGRES_HOST" \
+    DB_PORT="$POSTGRES_PORT" \
+    DB_NAME="$POSTGRES_DB_NAME" \
+    DB_USER="$POSTGRES_USER" \
+    DB_PASSWORD="$POSTGRES_PASSWORD" \
+    bash src/uploadDataset.sh \
+    "$POSTGRES_DB_NAME" \
+    "$VARIANT_NAME" \
+    output/matrix/sample_list.txt \
+    output/matrix/pos.txt \
+    "$REF_NAME" \
+    "$HDF5_FILE"; then
+    die "Failed to load sample dataset"
+  fi
+
+  log "Completed sample dataset load"
 }
 
 load_config
 validate_config
 create_db
 load_chado_dump
-PGHOST=$POSTGRES_HOST \
-  PGPORT=$POSTGRES_PORT \
-  PGDATABASE=$POSTGRES_DB_NAME \
-  PGUSER=$POSTGRES_USER \
-  PGPASSWORD=$POSTGRES_PASSWORD \
-  bash src/loadReferenceGenome.sh \
-  -i $REF_GFF \
-  -o $REF_NAME \
-  -n $REF_NAME
-DB_HOST=$POSTGRES_HOST \
-  DB_PORT=$POSTGRES_PORT \
-  DB_NAME=$POSTGRES_DB_NAME \
-  DB_USER=$POSTGRES_USER \
-  DB_PASSWORD=$POSTGRES_PASSWORD \
-  bash src/uploadDataset.sh \
-  $POSTGRES_DB_NAME \
-  $VARIANT_NAME \
-  output/matrix/sample_list.txt \
-  output/matrix/pos.txt \
-  $REF_NAME \
-  $HDF5_FILE
+load_ref
+load_samples
