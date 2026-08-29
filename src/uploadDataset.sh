@@ -248,11 +248,11 @@ SELECT platform_id FROM platform WHERE variantset_id=$VARIANTSET_ID and db_id=$D
 if [[ -z "$PLATFORM_ID" ]]; then
   echo "⚠️ platform_id not found, inserting platform..." | tee -a "$LOG_FILE"
 
-  MAX_PLATFORM_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" \
+  MAX_PLATFORM_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" \
   -d "$DB_NAME" -t -A -q -c "SELECT COALESCE(MAX(platform_id), 0) FROM platform;" | xargs)
 
 	# Update the sequence (replace sequence name with actual name)
-PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
+PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
   SELECT setval('platform_platform_id_seq1', $MAX_PLATFORM_ID + 1, false);"
 
 
@@ -277,11 +277,11 @@ SELECT genotype_run_id FROM genotype_run WHERE platform_id=$PLATFORM_ID and data
 if [[ -z "$GENOTYPE_RUN_ID" ]]; then
   echo "⚠️ GENOTYPE_RUN_ID not found, inserting GENOTYPE_RUN_ID..." | tee -a "$LOG_FILE"
 
-  MAX_GENOTYPE_RUN_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" \
+  MAX_GENOTYPE_RUN_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" \
   -d "$DB_NAME" -t -A -q -c "SELECT COALESCE(MAX(genotype_run_id), 0) FROM genotype_run;" | xargs)
 
 	# Update the sequence (replace sequence name with actual name)
-PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
+PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
   SELECT setval('genotype_run_genotype_run_id_seq', $MAX_GENOTYPE_RUN_ID + 1, false);"
 
 
@@ -301,13 +301,13 @@ echo "✅ GOT PLATFORM_ID: $PLATFORM_ID" | tee -a "$LOG_FILE"
 
 echo "Starting sample loading..." | tee "$LOG_FILE"
 
-MAX_STOCK_SAMPLE_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" \
+MAX_STOCK_SAMPLE_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" \
   -d "$DB_NAME" -t -A -q -c "SELECT COALESCE(MAX(stock_sample_id), 0) FROM stock_sample;" | xargs)
 
 echo "🔢 Max stock_sample_id: $MAX_STOCK_SAMPLE_ID"
 
 	# Update the sequence (replace sequence name with actual name)
-PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
+PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
   SELECT setval('stock_sample_stock_sample_id_seq', $MAX_STOCK_SAMPLE_ID + 1, false);"
 
 STOCK_SAMPLE_ID=$((MAX_STOCK_SAMPLE_ID +1))
@@ -318,24 +318,24 @@ echo "✅ (STOCK_SAMPLE) Sequence updated to start at $((STOCK_SAMPLE_ID))"
 echo "stock_sample_id, stock_id,dbxref_id,hdf5_index,tmp_oldstock_id" > "$OUTPUT_STOCK_SAMPLE_CSV"
 
 # --- Get max sample_varietyset_id ---
-MAX_SAMPLE_VARIETYSET_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" \
+MAX_SAMPLE_VARIETYSET_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" \
   -d "$DB_NAME" -t -A -q -c "SELECT COALESCE(MAX(sample_varietyset_id), 0) FROM sample_varietyset;" | xargs)
 
 SAMPLE_VARIETYSET_ID=$((MAX_SAMPLE_VARIETYSET_ID +1))
 
 
 # --- Update the sequence ---
-PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
+PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
   SELECT setval('sample_run_sample_run_id_seq', $((SAMPLE_VARIETYSET_ID)), false);
 "
 
 # --- Get max sample_varietyset_id ---
-MAX_STOCK_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" \
+MAX_STOCK_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" \
   -d "$DB_NAME" -t -A -q -c "SELECT COALESCE(MAX(stock_id), 0) FROM stock;" | xargs)
 
 MAX_STOCK_ID=$((MAX_STOCK_ID +1))
 
-PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
+PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
   SELECT setval('stock_stock_id_seq', $((MAX_STOCK_ID)), false);
 "
 
@@ -358,7 +358,7 @@ while IFS= read -r LINE || [ -n "$LINE" ]; do
      # ---- Add / Check for Stock Record ----
   LINE=$(printf "%s" "$LINE" | sed "s/'/''/g" | sed 's/\\/\\\\/g') 	
 		
-  STOCK_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
+  STOCK_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
     SELECT stock_id FROM stock
     WHERE uniquename = '$LINE'
 	  AND name = '$LINE'
@@ -370,7 +370,7 @@ while IFS= read -r LINE || [ -n "$LINE" ]; do
   if [[ -z "$STOCK_ID" ]]; then
     echo "⚠️ Stock '$LINE' not found. Inserting..." | tee -a "$LOG_FILE"
 
-    STOCK_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
+    STOCK_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
       INSERT INTO stock (name, uniquename, type_id, organism_id)
       VALUES ('$LINE', '$LINE', $CVTERM__PLANT_ID, $ORGANISM_ID)
       RETURNING stock_id")
@@ -385,7 +385,7 @@ while IFS= read -r LINE || [ -n "$LINE" ]; do
   # --- DBXREF INSERT OR SELECT ---
 	echo "Looking up dbxref_id for db_id=$DB_ID and accession='$LINE'..." | tee -a "$LOG_FILE"
 
-	DBXREF_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
+	DBXREF_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
 	  SELECT dbxref_id FROM dbxref
 	  WHERE db_id = $DB_ID AND accession = '$LINE'
 	  LIMIT 1;
@@ -394,7 +394,7 @@ while IFS= read -r LINE || [ -n "$LINE" ]; do
 	if [[ -z "$DBXREF_ID" ]]; then
 	  echo "⚠️ dbxref not found. Inserting..." | tee -a "$LOG_FILE"
 
-	  DBXREF_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
+	  DBXREF_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
 		INSERT INTO dbxref (db_id, accession, version)
 		VALUES ($DB_ID, '$LINE', 1)
 		RETURNING dbxref_id;
