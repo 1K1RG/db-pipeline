@@ -2,4 +2,4 @@ input
 output
 build
 logs
-config.env
+config*.env
