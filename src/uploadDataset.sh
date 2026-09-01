@@ -6,7 +6,7 @@
 
 # ---- Arguments to file Inputs ------
 
-DB="$1"
+DATASET_NAME="$1"
 VARIANTSET_NAME="$2"
 SAMPLE_FILE="$3"
 POS_FILE="$4"
@@ -160,11 +160,11 @@ FEATURE_CVTERM_CHR_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT"
 FEATURE_CVTERM_CHR_ID=$(echo $FEATURE_CVTERM_CHR_ID | xargs)
 
 # ---- DB Lookup or Insert ----
-echo "Looking up db_id for '$DB'..." | tee -a "$LOG_FILE"
+echo "Looking up db_id for '$DATASET_NAME'..." | tee -a "$LOG_FILE"
 
 
 DB_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
-SELECT db_id FROM db WHERE name = '$DB' LIMIT 1;
+SELECT db_id FROM db WHERE name = '$DATASET_NAME' LIMIT 1;
 ")
 
 if [[ -z "$DB_ID" ]]; then
@@ -172,11 +172,11 @@ if [[ -z "$DB_ID" ]]; then
 
   DB_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
   INSERT INTO db(name)
-  VALUES ('$DB')
+  VALUES ('$DATASET_NAME')
   RETURNING db_id;")
 
    DB_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
-    SELECT db_id FROM db WHERE name = '$DB' LIMIT 1;
+    SELECT db_id FROM db WHERE name = '$DATASET_NAME' LIMIT 1;
   ")
 fi
 

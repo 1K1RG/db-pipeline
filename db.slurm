@@ -117,7 +117,7 @@ load_samples() {
     DB_USER="$POSTGRES_USER" \
     DB_PASSWORD="$POSTGRES_PASSWORD" \
     bash src/uploadDataset.sh \
-    "$POSTGRES_DB_NAME" \
+    "$VARIANT_NAME" \
     "$VARIANT_NAME" \
     output/matrix/sample_list.txt \
     output/matrix/pos.txt \
