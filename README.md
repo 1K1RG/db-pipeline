@@ -1,32 +1,72 @@
 # 1K1RG Pipeline
 
-Currently supports VCF-to-HDF5 conversion only.
+Converts a VCF into HDF5, then loads the result into a Chado database.
 
-## Prerequisite
+The stages run in order. DB loading reads files that VCF to HDF5 writes under
+`output/`.
 
-Any conda distribution: Miniforge, Anaconda, Miniconda, or whatever your
-cluster already provides. An HPC may already have this as a module.
+Run both stages from the repository root; all paths are relative to it.
 
-## Initial Setup
+## VCF to HDF5
 
-Make a `config.env` based on `config.env.example`
+### Prerequisites
+
+- Any conda distribution: Miniforge, Anaconda, Miniconda, or whatever your
+  cluster already provides. An HPC may already have this as a module.
+
+### Setup
 
 ```sh
-cp config.env.example config.env
+cp config.vcf-to-hdf5.env.example config.vcf-to-hdf5.env
 ```
 
-Then edit `config.env`.
+Then edit `config.vcf-to-hdf5.env`.
 
-## Running
+### Running
 
-### With Slurm
+With Slurm:
 
 ```sh
-sbatch --mail-user "YOUR_EMAIL" main.slurm
+sbatch --mail-user "YOUR_EMAIL" vcf-to-hdf5.slurm
 ```
 
-### Without Slurm
+Without Slurm:
 
 ```sh
-bash main.slurm
+bash vcf-to-hdf5.slurm
+```
+
+### Output
+
+- `output/matrix/mat_vcf.txt`, `output/matrix/pos.txt`, and
+  `output/matrix/sample_list.txt`
+- `output/<OUTPUT_HDF5_NAME>_transp.h5`
+
+## DB Loading
+
+### Prerequisites
+
+- A completed VCF to HDF5 run.
+- PostgreSQL, with `psql` available and `sudo` access to the `postgres` role.
+
+### Setup
+
+```sh
+cp config.db-loading.env.example config.db-loading.env
+```
+
+Then edit `config.db-loading.env`. 
+
+### Running
+
+With Slurm:
+
+```sh
+sbatch --mail-user "YOUR_EMAIL" db-loading.slurm
+```
+
+Without Slurm:
+
+```sh
+bash db-loading.slurm
 ```

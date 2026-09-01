@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name 1k1rg-db-pipeline
-#SBATCH --output logs/1k1rg-db-pipeline-%j.out
-#SBATCH --error logs/1k1rg-db-pipeline-%j.error
+#SBATCH --job-name 1k1rg-vcf-to-hdf5
+#SBATCH --output logs/1k1rg-vcf-to-hdf5-%j.out
+#SBATCH --error logs/1k1rg-vcf-to-hdf5-%j.error
 #SBATCH --cpus-per-task 2
 #SBATCH --mem 2G
 #SBATCH --partition batch
@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-readonly CONFIG_FILE=./config.env
+readonly CONFIG_FILE=./config.vcf-to-hdf5.env
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
