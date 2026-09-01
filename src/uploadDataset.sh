@@ -271,7 +271,7 @@ echo "✅ GOT PLATFORM_ID: $PLATFORM_ID" | tee -a "$LOG_FILE"
 #---- ADD GenotypeRun
 
 GENOTYPE_RUN_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
-SELECT genotype_run_id FROM genotype_run WHERE platform_id=$PLATFORM_ID and data_location=$H5_file LIMIT 1;
+SELECT genotype_run_id FROM genotype_run WHERE platform_id=$PLATFORM_ID and data_location='$H5_file' LIMIT 1;
 ")
 
 if [[ -z "$GENOTYPE_RUN_ID" ]]; then
@@ -287,7 +287,7 @@ PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_N
 
   GENOTYPE_RUN_ID=$(PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -q -c "
   INSERT INTO genotype_run (platform_id, date_performed, data_location)
-  VALUES ($PLATFORM_ID, $(date) , $H5_file)
+  VALUES ($PLATFORM_ID, CURRENT_DATE, '$H5_file')
   RETURNING genotype_run_id;
   ")
 
