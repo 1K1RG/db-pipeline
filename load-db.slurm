@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name 1k1rg-db-loading
-#SBATCH --output logs/1k1rg-db-loading-%j.out
-#SBATCH --error logs/1k1rg-db-loading-%j.error
+#SBATCH --job-name 1k1rg-load-db
+#SBATCH --output logs/1k1rg-load-db-%j.out
+#SBATCH --error logs/1k1rg-load-db-%j.error
 #SBATCH --cpus-per-task 2
 #SBATCH --mem 2G
 #SBATCH --partition batch
@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-readonly CONFIG_FILE=./config.db-loading.env
+readonly CONFIG_FILE=./config/load-db.env
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"

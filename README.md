@@ -2,12 +2,12 @@
 
 Converts a VCF into HDF5, then loads the result into a Chado database.
 
-The stages run in order. DB loading reads files that VCF to HDF5 writes under
+The stages run in order. Load DB reads files that Generate HDF5 writes under
 `output/`.
 
 Run both stages from the repository root; all paths are relative to it.
 
-## VCF to HDF5
+## Generate HDF5
 
 ### Prerequisites
 
@@ -17,23 +17,23 @@ Run both stages from the repository root; all paths are relative to it.
 ### Setup
 
 ```sh
-cp config.vcf-to-hdf5.env.example config.vcf-to-hdf5.env
+cp config/generate-hdf5.env.example config/generate-hdf5.env
 ```
 
-Then edit `config.vcf-to-hdf5.env`.
+Then edit `config/generate-hdf5.env`.
 
 ### Running
 
 With Slurm:
 
 ```sh
-sbatch --mail-user "YOUR_EMAIL" vcf-to-hdf5.slurm
+sbatch --mail-user "YOUR_EMAIL" generate-hdf5.slurm
 ```
 
 Without Slurm:
 
 ```sh
-bash vcf-to-hdf5.slurm
+bash generate-hdf5.slurm
 ```
 
 ### Output
@@ -42,31 +42,31 @@ bash vcf-to-hdf5.slurm
   `output/matrix/sample_list.txt`
 - `output/<OUTPUT_HDF5_NAME>_transp.h5`
 
-## DB Loading
+## Load DB
 
 ### Prerequisites
 
-- A completed VCF to HDF5 run.
+- A completed Generate HDF5 run.
 - PostgreSQL, with `psql` available and `sudo` access to the `postgres` role.
 
 ### Setup
 
 ```sh
-cp config.db-loading.env.example config.db-loading.env
+cp config/load-db.env.example config/load-db.env
 ```
 
-Then edit `config.db-loading.env`. 
+Then edit `config/load-db.env`.
 
 ### Running
 
 With Slurm:
 
 ```sh
-sbatch --mail-user "YOUR_EMAIL" db-loading.slurm
+sbatch --mail-user "YOUR_EMAIL" load-db.slurm
 ```
 
 Without Slurm:
 
 ```sh
-bash db-loading.slurm
+bash load-db.slurm
 ```
