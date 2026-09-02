@@ -111,6 +111,13 @@ load_ref() {
 load_samples() {
   log "Starting sample dataset load"
 
+  # SNP Seek appends "_trans" to data_location when it looks for the transposed
+  # HDF5 file, so data_location must not carry that suffix.
+  local data_location=$HDF5_FILE
+  if [[ $data_location =~ ^(.*)_transp?(\.[^.]*)?$ ]]; then
+    data_location="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+  fi
+
   if ! DB_HOST="$POSTGRES_HOST" \
     DB_PORT="$POSTGRES_PORT" \
     DB_NAME="$POSTGRES_DB_NAME" \
@@ -122,7 +129,7 @@ load_samples() {
     output/matrix/sample_list.txt \
     output/matrix/pos.txt \
     "$REF_NAME" \
-    "$HDF5_FILE"; then
+    "$data_location"; then
     die "Failed to load sample dataset"
   fi
 
