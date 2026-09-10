@@ -42,7 +42,8 @@ validate_config() {
     POSTGRES_PASSWORD \
     REF_GFF \
     REF_NAME \
-    VARIANT_NAME \
+    VARIETY_SET \
+    SNP_SET \
     HDF5_FILE; do
     if [[ -z ${!variable:-} ]]; then
       die "$variable is not set in $CONFIG_FILE"
@@ -124,8 +125,8 @@ load_samples() {
     DB_USER="$POSTGRES_USER" \
     DB_PASSWORD="$POSTGRES_PASSWORD" \
     bash src/uploadDataset.sh \
-    "$VARIANT_NAME" \
-    "$VARIANT_NAME" \
+    "$VARIETY_SET" \
+    "$SNP_SET" \
     output/matrix/sample_list.txt \
     output/matrix/pos.txt \
     "$REF_NAME" \
