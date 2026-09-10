@@ -40,7 +40,6 @@ validate_config() {
     POSTGRES_DB_NAME \
     POSTGRES_USER \
     POSTGRES_PASSWORD \
-    REF_GFF \
     REF_NAME \
     VARIETY_SET \
     SNP_SET \
@@ -92,6 +91,11 @@ load_chado_dump() {
 }
 
 load_ref() {
+  if [[ -z ${REF_GFF:-} ]]; then
+    log "Skipping reference genome load: REF_GFF is not set"
+    return
+  fi
+
   log "Starting reference genome load"
 
   if ! PGHOST="$POSTGRES_HOST" \
