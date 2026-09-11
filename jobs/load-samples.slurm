@@ -11,29 +11,10 @@
 
 set -euo pipefail
 
+source ./utils.sh
+
 readonly DB_CONFIG_FILE=./config/database.env
 readonly SAMPLE_CONFIG_FILE=${1:-./config/load-samples.env}
-
-log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
-}
-
-die() {
-  log "Error: $1" >&2
-  exit 1
-}
-
-load_config() {
-  local config_file=$1
-
-  if [[ ! -f "$config_file" ]]; then
-    die "Configuration file $config_file not found"
-  fi
-
-  if ! source "$config_file"; then
-    die "Configuration file $config_file failed to load"
-  fi
-}
 
 validate_arguments() {
   if (($# > 1)); then
@@ -42,29 +23,20 @@ validate_arguments() {
 }
 
 validate_config() {
-  local variable
-  for variable in \
+  require_config_vars "$DB_CONFIG_FILE" \
     POSTGRES_HOST \
     POSTGRES_PORT \
     POSTGRES_DB_NAME \
     POSTGRES_USER \
-    POSTGRES_PASSWORD; do
-    if [[ -z ${!variable:-} ]]; then
-      die "$variable is not set in $DB_CONFIG_FILE"
-    fi
-  done
+    POSTGRES_PASSWORD
 
-  for variable in \
+  require_config_vars "$SAMPLE_CONFIG_FILE" \
     VARIETY_SET_NAME \
     SNP_SET_NAME \
     SAMPLE_FILE \
     POSITION_FILE \
     REF_NAME \
-    HDF5_FILE; do
-    if [[ -z ${!variable:-} ]]; then
-      die "$variable is not set in $SAMPLE_CONFIG_FILE"
-    fi
-  done
+    HDF5_FILE
 
   if [[ ! -f "$SAMPLE_FILE" ]]; then
     die "SAMPLE_FILE $SAMPLE_FILE not found"

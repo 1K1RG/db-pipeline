@@ -11,39 +11,18 @@
 
 set -euo pipefail
 
+source ./utils.sh
+
 readonly CONFIG_FILE=./config/generate-hdf5.env
 
-log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
-}
-
-die() {
-  log "Error: $1" >&2
-  exit 1
-}
-
-load_config() {
-  if [[ ! -f "$CONFIG_FILE" ]]; then
-    die "Configuration file $CONFIG_FILE not found"
-  fi
-
-  if ! source "$CONFIG_FILE"; then
-    die "Configuration file $CONFIG_FILE failed to load"
-  fi
-}
-
 validate_config() {
-  if [[ -z ${INPUT_VCF:-} ]]; then
-    die "INPUT_VCF is not set in $CONFIG_FILE"
-  fi
+  require_config_vars "$CONFIG_FILE" INPUT_VCF
 
   if [[ ! -f "$INPUT_VCF" ]]; then
     die "INPUT_VCF $INPUT_VCF not found"
   fi
 
-  if [[ -z ${OUTPUT_HDF5_NAME:-} ]]; then
-    die "OUTPUT_HDF5_NAME is not set in $CONFIG_FILE"
-  fi
+  require_config_vars "$CONFIG_FILE" OUTPUT_HDF5_NAME
 }
 
 load_conda_module() {
@@ -155,7 +134,7 @@ run_matrixtohdf5() {
   log "Completed matrix-to-HDF5 conversion"
 }
 
-load_config
+load_config "$CONFIG_FILE"
 validate_config
 activate_env
 run_vcftomatrix

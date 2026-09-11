@@ -11,29 +11,10 @@
 
 set -euo pipefail
 
+source ./utils.sh
+
 readonly DB_CONFIG_FILE=./config/database.env
 readonly REF_CONFIG_FILE=${1:-./config/load-reference.env}
-
-log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
-}
-
-die() {
-  log "Error: $1" >&2
-  exit 1
-}
-
-load_config() {
-  local config_file=$1
-
-  if [[ ! -f "$config_file" ]]; then
-    die "Configuration file $config_file not found"
-  fi
-
-  if ! source "$config_file"; then
-    die "Configuration file $config_file failed to load"
-  fi
-}
 
 validate_arguments() {
   if (($# > 1)); then
@@ -42,23 +23,18 @@ validate_arguments() {
 }
 
 validate_config() {
-  local variable
-  for variable in \
+  require_config_vars "$DB_CONFIG_FILE" \
     POSTGRES_HOST \
     POSTGRES_PORT \
     POSTGRES_DB_NAME \
     POSTGRES_USER \
-    POSTGRES_PASSWORD; do
-    if [[ -z ${!variable:-} ]]; then
-      die "$variable is not set in $DB_CONFIG_FILE"
-    fi
-  done
+    POSTGRES_PASSWORD
 
-  for variable in REF_GFF REF_OUTPUT_PREFIX REF_NAME; do
-    if [[ -z ${!variable:-} ]]; then
-      die "$variable is not set in $REF_CONFIG_FILE"
-    fi
-  done
+  require_config_vars \
+    "$REF_CONFIG_FILE" \
+    REF_GFF \
+    REF_OUTPUT_PREFIX \
+    REF_NAME
 
   if [[ ! -f "$REF_GFF" ]]; then
     die "REF_GFF $REF_GFF not found"

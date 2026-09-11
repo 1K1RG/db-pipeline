@@ -11,39 +11,17 @@
 
 set -euo pipefail
 
+source ./utils.sh
+
 readonly CONFIG_FILE=./config/database.env
 
-log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
-}
-
-die() {
-  log "Error: $1" >&2
-  exit 1
-}
-
-load_config() {
-  if [[ ! -f "$CONFIG_FILE" ]]; then
-    die "Configuration file $CONFIG_FILE not found"
-  fi
-
-  if ! source "$CONFIG_FILE"; then
-    die "Configuration file $CONFIG_FILE failed to load"
-  fi
-}
-
 validate_config() {
-  local variable
-  for variable in \
+  require_config_vars "$CONFIG_FILE" \
     POSTGRES_HOST \
     POSTGRES_PORT \
     POSTGRES_DB_NAME \
     POSTGRES_USER \
-    POSTGRES_PASSWORD; do
-    if [[ -z ${!variable:-} ]]; then
-      die "$variable is not set in $CONFIG_FILE"
-    fi
-  done
+    POSTGRES_PASSWORD
 }
 
 create_database() {
@@ -86,7 +64,7 @@ load_chado_dump() {
   log "Completed Chado dump load"
 }
 
-load_config
+load_config "$CONFIG_FILE"
 validate_config
 create_database
 load_chado_dump
