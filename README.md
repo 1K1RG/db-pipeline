@@ -1,26 +1,34 @@
 # 1K1RG Pipeline
 
-Converts a VCF into HDF5 and loads reference and sample data into a Chado
-database.
-
 The pipeline provides four independently runnable jobs:
 
-1. Generate an HDF5 dataset from a VCF with `jobs/generate-hdf5.slurm`.
-
-2. Create the database and load the Chado schema with
+1. Generate an HDF5 dataset from a VCF - `jobs/generate-hdf5.slurm`.
+2. Create the database and load the Chado schema -
    `jobs/init-database.slurm`.
-
-3. Load a reference genome with `jobs/load-reference.slurm`.
-
-   This requires an initialized database.
-
-4. Load a sample dataset with `jobs/load-samples.slurm`.
-
-   This requires a generated HDF5 dataset and its reference genome. Run it
-   separately for each dataset.
+3. Load a reference genome - `jobs/load-reference.slurm`.
+4. Load a sample dataset - `jobs/load-samples.slurm`.
 
 Run all jobs from the repository root because their paths are relative to that
 directory. Each job works with Slurm or as a regular Bash script.
+
+**Why This Repo Exists**
+
+The files in `src/` contain the original implementation of the conversion and
+loading steps. They are intentionally kept as close to their original form as
+practical. Although they can be called directly, their interfaces rely on
+positional arguments and assumptions that are not always clear to a user.
+
+The scripts in `jobs/` are the supported pipeline entry points. They are thin
+wrappers around the `src/` scripts that provide:
+
+- named settings in configuration files that can be saved and reused across
+  runs, instead of unexplained positional arguments;
+- Slurm job and resource settings;
+- validation of configuration and input files before work begins; and
+- clearer error handling and orchestration of the underlying steps.
+
+Bugs in the original scripts are fixed where needed, but broader changes are
+kept in the wrappers so that the legacy implementation remains recognizable.
 
 ## Generate HDF5
 
