@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name 1k1rg-load-db
-#SBATCH --output logs/1k1rg-load-db-%j.out
-#SBATCH --error logs/1k1rg-load-db-%j.error
+#SBATCH --job-name 1k1rg-init-database
+#SBATCH --output logs/1k1rg-init-database-%j.out
+#SBATCH --error logs/1k1rg-init-database-%j.error
 #SBATCH --cpus-per-task 2
 #SBATCH --mem 2G
 #SBATCH --partition batch
@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-readonly CONFIG_FILE=./config/load-db.env
+readonly CONFIG_FILE=./config/database.env
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
@@ -39,19 +39,15 @@ validate_config() {
     POSTGRES_PORT \
     POSTGRES_DB_NAME \
     POSTGRES_USER \
-    POSTGRES_PASSWORD \
-    REF_NAME \
-    VARIETY_SET \
-    SNP_SET \
-    HDF5_FILE; do
+    POSTGRES_PASSWORD; do
     if [[ -z ${!variable:-} ]]; then
       die "$variable is not set in $CONFIG_FILE"
     fi
   done
 }
 
-create_db() {
-  log "Starting database init"
+create_database() {
+  log "Starting database initialization"
 
   sudo -u postgres psql <<SQL
     DROP DATABASE IF EXISTS $POSTGRES_DB_NAME;
@@ -63,11 +59,11 @@ create_db() {
     GRANT ALL ON SCHEMA public TO $POSTGRES_USER;
 SQL
 
-  log "Completed database init"
+  log "Completed database initialization"
 }
 
 load_chado_dump() {
-  log "Starting Chado init"
+  log "Starting Chado dump load"
 
   if ! command -v psql &>/dev/null; then
     die "psql was not found in the active environment"
@@ -87,63 +83,10 @@ load_chado_dump() {
     die "Failed to restore Chado database dump"
   fi
 
-  log "Completed Chado init"
-}
-
-load_ref() {
-  if [[ -z ${REF_GFF:-} ]]; then
-    log "Skipping reference genome load: REF_GFF is not set"
-    return
-  fi
-
-  log "Starting reference genome load"
-
-  if ! PGHOST="$POSTGRES_HOST" \
-    PGPORT="$POSTGRES_PORT" \
-    PGDATABASE="$POSTGRES_DB_NAME" \
-    PGUSER="$POSTGRES_USER" \
-    PGPASSWORD="$POSTGRES_PASSWORD" \
-    bash src/loadReferenceGenome.sh \
-    -i "$REF_GFF" \
-    -o "$REF_NAME" \
-    -n "$REF_NAME"; then
-    die "Failed to load reference genome"
-  fi
-
-  log "Completed reference genome load"
-}
-
-load_samples() {
-  log "Starting sample dataset load"
-
-  # SNP Seek appends "_trans" to data_location when it looks for the transposed
-  # HDF5 file, so data_location must not carry that suffix.
-  local data_location=$HDF5_FILE
-  if [[ $data_location =~ ^(.*)_transp?(\.[^.]*)?$ ]]; then
-    data_location="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
-  fi
-
-  if ! DB_HOST="$POSTGRES_HOST" \
-    DB_PORT="$POSTGRES_PORT" \
-    DB_NAME="$POSTGRES_DB_NAME" \
-    DB_USER="$POSTGRES_USER" \
-    DB_PASSWORD="$POSTGRES_PASSWORD" \
-    bash src/uploadDataset.sh \
-    "$VARIETY_SET" \
-    "$SNP_SET" \
-    output/matrix/sample_list.txt \
-    output/matrix/pos.txt \
-    "$REF_NAME" \
-    "$data_location"; then
-    die "Failed to load sample dataset"
-  fi
-
-  log "Completed sample dataset load"
+  log "Completed Chado dump load"
 }
 
 load_config
 validate_config
-create_db
+create_database
 load_chado_dump
-load_ref
-load_samples
