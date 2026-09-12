@@ -44,6 +44,8 @@ validate_config() {
 load_reference() {
   log "Starting reference genome load"
 
+  mkdir -p output
+
   if ! PGHOST="$POSTGRES_HOST" \
     PGPORT="$POSTGRES_PORT" \
     PGDATABASE="$POSTGRES_DB_NAME" \
@@ -51,7 +53,7 @@ load_reference() {
     PGPASSWORD="$POSTGRES_PASSWORD" \
     bash src/loadReferenceGenome.sh \
     -i "$REF_GFF" \
-    -o "$REF_OUTPUT_PREFIX" \
+    -o "output/$REF_OUTPUT_PREFIX" \
     -n "$REF_NAME"; then
     die "Failed to load reference genome"
   fi

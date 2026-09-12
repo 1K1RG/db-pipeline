@@ -75,7 +75,7 @@ floc_next_id=$((floc_max_id + 1))
 
 echo "feature_id,dbxref_id,organism_id,name,uniquename,residues,seqlen,md5checksum,type_id,is_analysis,is_obsolete,timeaccessioned,timelastmodified" > "${outputname}_feature.csv"
 echo "featureloc_id,feature_id,srcfeature_id,fmin,is_fmin_partial,fmax,is_fmax_partial,strand,phase,residue_info,locgroup,rank" > "${outputname}_featureloc.csv"
-echo "logs" > logs.txt  
+echo "logs" > "${outputname}_logs.txt"
 
 chroms=$(grep -oiE 'chr[0-9A-Za-z]+' "$input_file" | sort -u)
 
@@ -104,9 +104,9 @@ echo "gene $gene_cvtermid"
 
 for chr in "${!chr_feature_id[@]}"; do
     echo "$chr,${chr_feature_id[$chr]}"
-done > chr_feature_id_map.txt
+done > "${outputname}_chr_feature_id_map.txt"
 
-awk -v OFS=',' -v gene_max_id="$gene_max_id" -v organism_id="$organism_id" -v cvterm_id="$cvterm_id" -v gene_cvtermid="$gene_cvtermid" -v outputname="$outputname" -v mapfile="chr_feature_id_map.txt" '
+awk -v OFS=',' -v gene_max_id="$gene_max_id" -v organism_id="$organism_id" -v cvterm_id="$cvterm_id" -v gene_cvtermid="$gene_cvtermid" -v outputname="$outputname" -v mapfile="${outputname}_chr_feature_id_map.txt" '
     BEGIN {
         timenow=strftime("%Y-%m-%d %H:%M:%S");
         floc_next_id='"$floc_next_id"';

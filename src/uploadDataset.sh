@@ -16,7 +16,7 @@ ORGANISM_SPECIES="$5"
 H5_file="$6"
 
 
-OUTPUT_DIR="$VARIANTSET_NAME"
+OUTPUT_DIR="${OUTPUT_DIR:-.}/$VARIANTSET_NAME"
 mkdir -p "$OUTPUT_DIR"
 
 timenow=$(date '+%Y-%m-%d %H:%M:%S')
@@ -46,7 +46,7 @@ fi
 # DB_PORT="5432"
 # DB_PASSWORD="user12345"
 # CSV_DIR="/path/to/csv/files"
-LOG_FILE="upload_log.txt"
+LOG_FILE="$OUTPUT_DIR/upload_log.txt"
 
 # ---- Variable Definition ----
 TERM_NAME='whole plant'
