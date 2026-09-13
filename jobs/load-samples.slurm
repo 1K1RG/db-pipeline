@@ -15,8 +15,6 @@ source ./utils.sh
 
 readonly DB_CONFIG_FILE=./config/database.env
 readonly SAMPLE_CONFIG_FILE=${1:-./config/load-samples.env}
-readonly SAMPLES_FILE=output/matrix/sample_list.txt
-readonly POSITIONS_FILE=output/matrix/pos.txt
 
 validate_arguments() {
   if (($# > 1)); then
@@ -37,14 +35,6 @@ validate_config() {
     SNP_SET_NAME \
     REF_NAME \
     HDF5_FILE
-
-  if [[ ! -f "$SAMPLES_FILE" ]]; then
-    die "$SAMPLES_FILE not found"
-  fi
-
-  if [[ ! -f "$POSITIONS_FILE" ]]; then
-    die "$POSITIONS_FILE not found"
-  fi
 }
 
 load_samples() {
@@ -56,6 +46,19 @@ load_samples() {
     data_location="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
   fi
 
+  local dataset=${data_location##*/}
+  local matrix_dir=output/matrix/${dataset%.*}
+  local samples_file=$matrix_dir/sample_list.txt
+  local positions_file=$matrix_dir/pos.txt
+
+  if [[ ! -f "$samples_file" ]]; then
+    die "$samples_file not found"
+  fi
+
+  if [[ ! -f "$positions_file" ]]; then
+    die "$positions_file not found"
+  fi
+
   if ! OUTPUT_DIR=output \
     DB_HOST="$POSTGRES_HOST" \
     DB_PORT="$POSTGRES_PORT" \
@@ -65,8 +68,8 @@ load_samples() {
     bash src/uploadDataset.sh \
     "$VARIETY_SET_NAME" \
     "$SNP_SET_NAME" \
-    "$SAMPLES_FILE" \
-    "$POSITIONS_FILE" \
+    "$samples_file" \
+    "$positions_file" \
     "$REF_NAME" \
     "$data_location"; then
     die "Failed to load sample dataset"

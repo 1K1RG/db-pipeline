@@ -117,7 +117,7 @@ activate_env() {
 
 run_vcftomatrix() {
   log "Starting VCF-to-matrix conversion"
-  bash src/vcftomatrix.sh "$INPUT_VCF" output/matrix
+  bash src/vcftomatrix.sh "$INPUT_VCF" "output/matrix/$OUTPUT_HDF5_NAME"
   log "Completed VCF-to-matrix conversion"
 }
 
@@ -130,7 +130,11 @@ run_matrixtohdf5() {
     bash ../src/build-loadmatrix.sh ../src/loadmatrix_SNP-annot.cpp >/dev/null
   )
 
-  bash src/make_HDF_dataset.sh output/matrix "$OUTPUT_HDF5_NAME" output build/loadmatrix_geno
+  bash src/make_HDF_dataset.sh \
+    "output/matrix/$OUTPUT_HDF5_NAME" \
+    "$OUTPUT_HDF5_NAME" \
+    output \
+    build/loadmatrix_geno
   log "Completed matrix-to-HDF5 conversion"
 }
 

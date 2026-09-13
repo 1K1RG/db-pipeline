@@ -64,8 +64,8 @@ bash jobs/generate-hdf5.slurm
 
 ### Output
 
-- `output/matrix/mat_vcf.txt`, `output/matrix/pos.txt`, and
-  `output/matrix/sample_list.txt`
+- `output/matrix/<OUTPUT_HDF5_NAME>/mat_vcf.txt`, `pos.txt`, and
+  `sample_list.txt`
 - `output/<OUTPUT_HDF5_NAME>_transp.h5`
 
 ## Initialize Database
