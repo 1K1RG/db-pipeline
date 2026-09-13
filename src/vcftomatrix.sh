@@ -13,5 +13,9 @@ bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%TGT]\n' $invcf |  tr "|" "/"  | \
 
 cut -f1-4 $pref/mat_vcf.txt > $pref/pos.txt
 
-bcftools view -o -   -h $invcf  |  grep CHR | tr "\t" "\n"  | tail -n+10 > $pref/sample_list.txt
+# Replaces `bcftools view -h | grep CHR | tr "\t" "\n" | tail -n+10`.
+# That grep matched any header line containing CHR, not just #CHROM.
+# For example, a `##bcftools_annotateCommand` line can hold %CHROM, which
+# produces a wrong list.
+bcftools query -l $invcf > $pref/sample_list.txt
 
