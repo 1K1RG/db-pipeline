@@ -46,8 +46,7 @@ load_samples() {
     data_location="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
   fi
 
-  local dataset=${data_location##*/}
-  local matrix_dir=output/matrix/${dataset%.*}
+  local matrix_dir=output/matrix/${data_location%.*}
   local samples_file=$matrix_dir/sample_list.txt
   local positions_file=$matrix_dir/pos.txt
 
