@@ -171,9 +171,9 @@ Without Slurm:
 bash jobs/load-samples.slurm
 ```
 
-For repeated loads, create a separate configuration based on
-`config/load-samples.env.example` for each dataset and pass its path to the
-job:
+To keep configurations for multiple sample datasets, you may create a separate
+configuration based on `config/load-samples.env.example` for each dataset. For
+example, create `config/my-dataset.env` and pass its path to the job:
 
 ```sh
 cp config/load-samples.env.example config/my-dataset.env
